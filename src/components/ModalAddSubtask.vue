@@ -1,17 +1,14 @@
 <template>
     <div>
-        <div class="backdrop" v-if="showModalAddTask">
+        <div class="backdrop" v-if="showModalAddSubtask">
             <div class="modal">
                 <div class="header">
                     <span class="close-modal" @click="closeModal()">x</span>
                 </div>
-                <label>Nome da task</label>
-                <input v-model="taskTitulo" type="text">
-                <label>Descrição da task</label>
-                <input v-model="taskDescription" type="text">
-                <label>Data de vencimento</label>
-                <input v-model="taskDuedate" type="date">
-                <button @click="createTask()">Criar</button>
+                <label>Título da Subtask</label>
+                <input v-model="subtaskTitle" type="text">
+                <label for=""></label>
+                <button @click="createSubtask()">Criar</button>
                 <!-- <slot></slot>  -->
             </div>
         </div>
@@ -24,48 +21,49 @@ import axios from 'axios'
 export default {
     data() {
         return {
+            subtaskTitle: '',
         }
     },
     methods: {
         closeModal() {
-            this.$emit('update:showModalAddTask', false)
+            this.$emit('update:showModalAddSubtask', false)
         },
-        createTask() {
+        createSubtask() {
             let data = {
-                title: this.taskTitulo,
-                description: this.taskDescription,
-                due_date: this.taskDuedate
+                title: this.subtaskTitle,
+                description: '',
+                id_task: this.task.id
             }
 
-            axios.post('task', data)
+            console.log(this.task);
+            console.log(data);
+            axios.post('subtask', data)
                 .then(response => {
                     this.tasks = response.data;
-                    // this.tasks = response.data.data; 25/04
                 })
                 .catch(error => {
                     console.log(error);
                 })
                 .finally(() => {
-                    console.log('A requisição acabou!');
+                    console.log('Feito');
                     this.closeModal();
                 });
-            setTimeout(() => {
-                this.$router.go(0);
-            }, 2000);
+
+
+            // setTimeout(() => {
+            //     this.$router.go(0);
+            // }, 2000);
         },
 
     },
     props: {
-        modalTitle: {
-            type: String,
-            default: ''
-        },
-        showModalAddTask: {
+        showModalAddSubtask: {
             type: Boolean,
             required: true
         },
         task: {
-            type: Object
+            type: Object,
+            required: true
         }
     },
 }
@@ -114,7 +112,7 @@ export default {
 
 .modal>button:hover {
     background-color: #bdbdbd;
-    cursor:pointer;
+    cursor: pointer;
 }
 
 .close-modal {

@@ -1,18 +1,16 @@
 <template>
     <div>
-        <div class="backdrop" v-if="showModalAddTask">
+        <div class="backdrop" v-if="showModalEditDate">
             <div class="modal">
-               <div class="header">
-                <span class="close-modal" @click="closeModal()">x</span>
-               </div>
-                <label >Nome da task</label>
-                <input v-model="taskTitulo" type="text">
-                <label >Descrição da task</label>
-                <input v-model="taskDescription" type="text">
-                <label >Data de vencimento</label>
+                <div class="header">
+                    <span class="close-modal" @click="closeModal()">x</span>
+                </div>
+                <label>Data de vencimento</label>
                 <input v-model="taskDuedate" type="date">
-                <button @click="createTask()">Criar</button>
-                 <!-- <slot></slot>  -->
+
+                <button @click="updateDate()">Salvar</button>
+
+                <!-- <slot></slot> -->
             </div>
         </div>
     </div>
@@ -26,42 +24,49 @@ export default {
         return {
         }
     },
+    watch: {
+        showModal(newValue) {
+            if (newValue == true && this.task) {
+                this.taskDuedate = this.task.due_date
+            }
+        }
+    },
     methods: {
         closeModal() {
-            this.$emit('update:showModalAddTask', false)
+            this.$emit('update:showModalEditDate', false)
         },
-        createTask() {
+        updateDate() {
             let data = {
                 title: this.taskTitulo,
                 description: this.taskDescription,
                 due_date: this.taskDuedate
             }
 
-            axios.post('task', data)
-        .then(response => {
-                this.tasks = response.data;
-                // this.tasks = response.data.data; 25/04
-            })
-            .catch(error => {
-                console.log(error);
-            })
-            .finally(() => {
-                    console.log('Feito');
-                    this.closeModal();
-            });
-        },
-        
+            axios.put('task/' + this.task.id, data)
+                .then((response) => {
+                    console.log(response)
+                    this.$emit('update:showModalEditDate', false)
+                })
+                .catch((error) => {
+                    console.log(error)
+                })
+            return
+        }
+
     },
     props: {
         modalTitle: {
             type: String,
             default: ''
         },
-        showModalAddTask: {
+        showModalEditDate: {
             type: Boolean,
             required: true
         },
         task: {
+            type: Object
+        },
+        subtask: {
             type: Object
         }
     },
@@ -89,23 +94,27 @@ export default {
     padding: 25px;
     height: fit-content;
 }
-.modal > input {
+
+.modal>input {
     border: 1px solid #cdcdcd;
     border-radius: 10px;
     padding: 12px;
     font-size: 16px;
 }
-.modal > label {
+
+.modal>label {
     font-size: 16px;
 }
-.modal > button {
+
+.modal>button {
     transition: .3s;
     height: 50px;
     background-color: #cdcdcd;
     border: none;
     border-radius: 10px;
 }
-.modal > button:hover {
+
+.modal>button:hover {
     background-color: #bdbdbd;
 }
 

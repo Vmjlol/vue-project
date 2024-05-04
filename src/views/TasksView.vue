@@ -47,7 +47,6 @@
                     @click="selectedTask = task, selectedSubtask = selectedTask.subtasks">
                     <div class="mainbox">
                         <!-- Tasklist -->
-                        {{ task.status }}
                         <div v-if="task.status == 'pending'">
                             <label class="check" @click="completeTask()">{{ task.title }}
                                 <input type="checkbox" name="taskid" id="taskid" class="me-3">
@@ -62,7 +61,7 @@
 
 
                         <p class="fs-6 task-comment">{{ task.description }}</p>
-                        <p :class="task.due_date > moment().format('YYYY-MM-DD HH:mm:s') ? 'date-green' : 'date-red'"><i
+                        <p :class="momentDate(task.due_date) >= moment().format('DD/MM/YYYY') ? 'date-green' : 'date-red'"><i
                                 class="bi bi-calendar4"></i><span>{{ momentDate(task.due_date) }}</span></p>
 
                         <!-- Subtasks -->
@@ -71,7 +70,6 @@
 
 
 
-                            {{ subtask.status }}
                             <div v-if="subtask.status == 'pending'">
                                 <label class="check">{{ subtask.title }}
                                     <input type="checkbox" @click="completeSubtask()" name="subtaskid" id="subtaskid"
@@ -85,7 +83,6 @@
                                         class="me-3" checked>
                                     <span class="checkmark"></span></label>
                             </div>
-                            {{ subtask.status }}
 
                         </div>
 
@@ -98,7 +95,7 @@
                         <div @click="selectedTask = {}, showModal = true">
                             <i title="Editar Tarefa" class="bi bi-pencil pointer"></i>
                         </div>
-                        <div>
+                        <div @click="showModalEditDate = true">
                             <i title="Definir Vencimento" class="bi bi-calendar4 pointer"></i>
                         </div>
                         <div @click="deleteTask(task.id)">
@@ -121,14 +118,25 @@
 
     <ModalView :task="selectedTask" :subtask="selectedSubtask" v-model:showModal="showModal">
 
-        <div class="modal-header">
-            <i class="bi bi-calendar4 condicao"><span> {{ situacao }}</span></i>
+        <div>
+            <div class="modal-header">
+                <i :class="momentDate(selectedTask.due_date) >= moment().format('DD/MM/YYYY') ? 'bi bi-calendar4 date-green' : 'bi bi-calendar4 date-red'">
+                    <span v-if="momentDate(selectedTask.due_date) >= moment().format('DD/MM/YYYY')"> No Prazo</span>
+                    <span v-else> Atrasado</span>
+
+                </i>
+            </div>
         </div>
+        
 
         <div class="modal-content">
             <div class="modal-left">
-                <label class="check">{{ selectedTask.title }}
-                    <input type="checkbox" name="taskid" id="taskid" class="me-3">
+                <label v-if="selectedTask.status == 'pending'" class="check">{{ selectedTask.title }}
+                    <input @click="completeTask()" type="checkbox" name="taskid" id="taskid" class="me-3">
+                    <span class="checkmark"></span>
+                </label>
+                <label v-else class="check">{{ selectedTask.title }}
+                    <input @click="pendingTask()" type="checkbox" name="taskid" id="taskid" class="me-3" checked>
                     <span class="checkmark"></span>
                 </label>
                 <p style="margin-left:40px;">{{ selectedTask.description }}</p>
@@ -141,7 +149,7 @@
                             <span class="checkmark"></span>
                         </label>
                     </div>
-
+                    <p style="margin: 20px 50px;" class="submit" @click="selectedTask = {}, showModalAddSubtask = true">+ Criar subtarefa</p>
                 </div>
             </div>
 
@@ -183,11 +191,9 @@
         </div>
     </ModalView>
 
-    <ModalAddTask v-model:showModalAddTask="showModalAddTask">
-
-        <h1>Oi</h1>
-
-    </ModalAddTask>
+    <ModalAddTask :task="selectedTask" v-model:showModalAddTask="showModalAddTask"></ModalAddTask>
+    <ModalEditDate :task="selectedTask" v-model:showModalEditDate="showModalEditDate"></ModalEditDate>
+    <ModalAddSubtask :task="selectedTask" v-model:showModalAddSubtask="showModalAddSubtask"></ModalAddSubtask>
 
 
 
@@ -198,6 +204,8 @@ import axios from 'axios';
 import ModalView from '@/components/ModalView.vue';
 import moment from 'moment';
 import ModalAddTask from '@/components/ModalAddTask.vue';
+import ModalEditDate from '@/components/ModalEditDate.vue';
+import ModalAddSubtask from '@/components/ModalAddSubtask.vue';
 
 export default {
     data() {
@@ -207,6 +215,8 @@ export default {
             modalTitle: "Oi",
             showAddTask: false,
             showModalAddTask: false,
+            showModalEditDate: false,
+            showModalAddSubtask: false,
             currentTitle: "Teste",
             title: "Entrada",
             situacao: "No prazo",
@@ -216,7 +226,9 @@ export default {
     },
     components: {
         ModalView,
-        ModalAddTask
+        ModalAddTask,
+        ModalEditDate,
+        ModalAddSubtask
     },
     mounted() {
         axios.defaults.baseURL = 'http://127.0.0.1:8000/api/'
@@ -267,8 +279,6 @@ export default {
                 .catch((error) => {
                     console.error('Erro:', error);
                 });
-            // this.delayTask();
-            this.pendingSubtask();
         },
         completeTask() {
             const data = {
@@ -283,15 +293,15 @@ export default {
                 .catch((error) => {
                     console.error('Erro:', error);
                 });
-            // this.delayTask();
-            this.completeSubtask();
         },
         pendingSubtask() {
             const data = {
-                status: 'pending'
+                status: 'pending',
+                id_task: this.selectedTask.id
             }
-            console.log(this.selectedTask.subtasks);
-            axios.patch(`subtask/${this.selectedSubtask.id}`, data)
+            console.log(this.selectedSubtask);
+            axios.patch(`subtask/${this.selectedTask.subtasks.id}`, data)
+            
                 .then((response) => {
                     console.log(response);
                     this.selectedSubtask.status = 'pending'
