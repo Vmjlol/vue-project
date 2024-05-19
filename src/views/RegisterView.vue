@@ -11,7 +11,7 @@
         <div class="main">
             <div class="box">
 
-                <div class="leftbox">
+                <div class="left-box">
                     <div class="icon">
                         <i class="bi bi-yin-yang"></i>
                     </div>
@@ -24,10 +24,10 @@
                     <div class="logo">
                         <div class="gradient"></div>
                         <div class="gradient2">
-                            <div class="fundoshape"></div>
-                            <div class="posicaoshape">
-                                <div class="lowershape"></div>
-                                <div class="uppershape"></div>
+                            <div class="fundo-shape"></div>
+                            <div class="posicao-shape">
+                                <div class="lower-shape"></div>
+                                <div class="upper-shape"></div>
                             </div>
                         </div>
                     </div>
@@ -41,11 +41,11 @@
 
                     <div class="form m-2">
                         <label for="nome">Nome completo</label>
-                        <input type="nome" name="nome" id="nome" placeholder="Nome e sobrenome">
+                        <input class="form-control" type="nome" name="nome" id="nome" placeholder="Nome e sobrenome">
                         <label for="email">Endereço de e-mail</label>
-                        <input type="email" name="email" id="email" placeholder="email@email.com.br">
+                        <input class="form-control" type="email" name="email" id="email" placeholder="email@email.com.br">
                         <label for="senha">Senha de acesso</label>
-                        <input type="password" name="senha" id="senha" placeholder="********">
+                        <input class="form-control" type="password" name="senha" id="senha" placeholder="********">
                     </div>
 
 
@@ -99,7 +99,7 @@ body {
     gap: 40px;
 }
 
-.leftbox {
+.left-box {
     display: grid;
     width: 609px;
     height: 599px;
@@ -109,13 +109,13 @@ body {
     background-color: black;
 }
 
-.leftbox:hover {
+.left-box:hover {
     color: black;
     background-color: white;
     transition: .4s;
 }
 
-.leftbox:hover .icon {
+.left-box:hover .icon {
     margin: 120px 0 0 80px;
     color: black;
 }
@@ -184,7 +184,7 @@ a {
     color: white;
     padding: 30px 80px 30px 80px;
     line-height: 28.80px;
-
+    font-size: 18px;
 }
 
 .logo {
@@ -205,7 +205,7 @@ a {
             rgba(255, 255, 255, 0.20) 36%, rgba(255, 255, 255, 0) 100%)
 }
 
-.leftbox:hover .gradient {
+.left-box:hover .gradient {
     width: 100px;
     height: 100px;
     left: 0px;
@@ -223,7 +223,7 @@ a {
     position: absolute
 }
 
-.fundoshape {
+.fundo-shape {
     width: 100px;
     height: 100px;
     left: 0px;
@@ -233,7 +233,7 @@ a {
     box-shadow: 10px 10px 20px rgba(37.27, 38.43, 48.87, 0.10)
 }
 
-.posicaoshape {
+.posicao-shape {
     width: 61.51px;
     height: 49.72px;
     left: 19.24px;
@@ -241,7 +241,7 @@ a {
     position: absolute
 }
 
-.lowershape {
+.lower-shape {
     width: 40.52px;
     height: 40.52px;
     left: 30.76px;
@@ -252,7 +252,7 @@ a {
     background: rgba(0, 0, 0, 0.30)
 }
 
-.uppershape {
+.upper-shape {
     width: 40.52px;
     height: 40.52px;
     left: 30.76px;
@@ -265,19 +265,19 @@ a {
 
 
 
-.leftbox:hover .fundoshape {
+.left-box:hover .fundo-shape {
     background-color: black;
 }
 
-.leftbox:hover .uppershape {
+.left-box:hover .upper-shape {
     background: white;
 }
 
-.leftbox:hover .lowershape {
+.left-box:hover .lower-shape {
     background: rgba(255, 255, 255, 0.30)
 }
 
-.leftbox * {
+.left-box * {
     transition: .5s;
 }
 
@@ -287,6 +287,45 @@ a {
     color: white;
     padding: 30px 80px 30px 80px;
     line-height: 28.80px;
-
 }
+
+.form-control {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .form-control {
+      transition: none;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    * {
+      display: block;
+      justify-content: space-evenly;
+    }
+    .left-box {
+        display: none;
+    }
+    .links {
+        margin: 0px;
+    }
+    .links button, .links a {
+        padding: 10px;
+        width: 100%;
+    }
+  }
 </style>

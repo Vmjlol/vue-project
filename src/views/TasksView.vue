@@ -11,12 +11,14 @@
 
         <nav class="navbar sticky-top">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <a href="#"><i class="bi bi-yin-yang lefticon"></i></a>
+                <a href="#"><i class="bi bi-yin-yang left-icon"></i></a>
             </ul>
             <form>
-                <i class="bi bi-plus pointer" @mouseenter="showAddTask = !showAddTask"
-                    @mouseleave="showAddTask = !showAddTask"><span class="fs-5" style="vertical-align: text-top;"
-                        @click="showModalAddTask = true">Nova Tarefa</span></i>
+                <div style="cursor:pointer;" @click="showModalAddTask = true" @mouseenter="showAddTask = true"
+                @mouseleave="showAddTask = false">
+                    <i class="bi bi-plus pointer" ></i>
+                    <span v-if="showAddTask">Nova Tarefa</span>
+                </div>
                 <i @click="showModal = true" class="bi bi-info-circle pointer"></i>
                 <i class="bi bi-bell pointer"></i>
                 <div class="circle">
@@ -26,15 +28,15 @@
         </nav>
 
         <div class="content-page">
-            <div>
-                <div class="leftmenu">
+            <div class="left-box">
+                <div class="left-menu">
                     <div class="submenu">
-                        <p class="pointer" @click="selectEntry()"><i class="bi bi-inbox"></i><span> Entrada</span>
+                        <p class="pointer" @click="selectEntry()"><i class="bi bi-inbox"></i><span> Entrada</span><span>{{ entry }}</span>
                         </p>
                         <p class="pointer" @click="selectToday()"><i class="bi bi-calendar4"></i><span> Tarefas de
-                                hoje</span></p>
+                                hoje</span><span>{{ today }}</span></p>
                         <p class="pointer" @click="selectPast()"><i class="bi bi-exclamation-triangle "></i><span>
-                                Vencidos</span></p>
+                                Vencidos</span><span>{{ late }}</span></p>
                     </div>
                 </div>
             </div>
@@ -45,7 +47,7 @@
 
                 <div class="tasks" v-for="task in tasks" :key="task.id"
                     @click="selectedTask = task, selectedSubtask = selectedTask.subtasks">
-                    <div class="mainbox">
+                    <div class="main-box">
                         <!-- Tasklist -->
                         <div v-if="task.status == 'pending'">
                             <label class="check" @click="completeTask()">{{ task.title }}
@@ -59,10 +61,11 @@
                                 <span class="checkmark"></span></label>
                         </div>
 
-
                         <p class="fs-6 task-comment">{{ task.description }}</p>
-                        <p :class="momentDate(task.due_date) >= moment().format('DD/MM/YYYY') ? 'date-green' : 'date-red'"><i
-                                class="bi bi-calendar4"></i><span>{{ momentDate(task.due_date) }}</span></p>
+                        <p
+                            :class="momentDate(task.due_date) >= moment().format('DD/MM/YYYY') ? 'date-green' : 'date-red'">
+                            <i class="bi bi-calendar4"></i><span>{{ momentDate(task.due_date) }}</span>
+                        </p>
 
                         <!-- Subtasks -->
                         <!-- Teste -->
@@ -91,7 +94,7 @@
 
                     <!-- Options -->
 
-                    <div class="optionsTask">
+                    <div class="options-task">
                         <div @click="selectedTask = {}, showModal = true">
                             <i title="Editar Tarefa" class="bi bi-pencil pointer"></i>
                         </div>
@@ -120,14 +123,15 @@
 
         <div>
             <div class="modal-header">
-                <i :class="momentDate(selectedTask.due_date) >= moment().format('DD/MM/YYYY') ? 'bi bi-calendar4 date-green' : 'bi bi-calendar4 date-red'">
+                <i
+                    :class="momentDate(selectedTask.due_date) >= moment().format('DD/MM/YYYY') ? 'bi bi-calendar4 date-green' : 'bi bi-calendar4 date-red'">
                     <span v-if="momentDate(selectedTask.due_date) >= moment().format('DD/MM/YYYY')"> No Prazo</span>
                     <span v-else> Atrasado</span>
 
                 </i>
             </div>
         </div>
-        
+
 
         <div class="modal-content">
             <div class="modal-left">
@@ -149,7 +153,8 @@
                             <span class="checkmark"></span>
                         </label>
                     </div>
-                    <p style="margin: 20px 50px;" class="submit" @click="selectedTask = {}, showModalAddSubtask = true">+ Criar subtarefa</p>
+                    <p style="margin: 20px 50px;" class="submit" @click="selectedTask = {}, showModalAddSubtask = true">
+                        + Criar subtarefa</p>
                 </div>
             </div>
 
@@ -222,6 +227,10 @@ export default {
             situacao: "No prazo",
             selectedTask: {},
             selectedSubtask: {},
+            taskDate: '',
+            entry: '*',
+            today: '',
+            late: ''
         }
     },
     components: {
@@ -243,24 +252,49 @@ export default {
         selectEntry() {
             this.title = "Entrada"
             this.getTasks();
+            this.entry = '*'
+            this.today = ''
+            this.late = ''
         },
         selectToday() {
             this.title = "Tarefas de hoje"
+            this.getTasksToday();
+            this.entry = ''
+            this.today = '*'
+            this.late = ''
         },
         selectPast() {
             this.title = "Vencidos"
+            this.getTasksLate();
+            this.entry = ''
+            this.today = ''
+            this.late = '*'
         },
         getTasks() {
             axios.get('task')
                 .then((response) => {
-                    this.tasks = response.data.data
-                    console.log(this.tasks)
+                    this.tasks = response.data.tasks
                 })
                 .catch((error) => {
                     console.log(error)
                 })
-                .finally(() => {
-                    console.log('Feito');
+        },
+        getTasksToday() {
+            axios.get('task/today')
+                .then((response) => {
+                    this.tasks = response.data
+                })
+                .catch((error) => {
+                    console.log(error)
+                })
+        },
+        getTasksLate() {
+            axios.get('task/late')
+                .then((response) => {
+                    this.tasks = response.data
+                })
+                .catch((error) => {
+                    console.log(error)
                 })
         },
         updateTask() {
@@ -272,9 +306,7 @@ export default {
             }
             axios.patch(`task/${this.selectedTask.id}`, data)
                 .then((response) => {
-                    console.log(response);
                     this.selectedTask.status = 'pending'
-                    console.log('Sucesso');
                 })
                 .catch((error) => {
                     console.error('Erro:', error);
@@ -286,9 +318,7 @@ export default {
             }
             axios.patch(`task/${this.selectedTask.id}`, data)
                 .then((response) => {
-                    console.log(response);
                     this.selectedTask.status = 'completed'
-                    console.log('Sucesso');
                 })
                 .catch((error) => {
                     console.error('Erro:', error);
@@ -299,13 +329,10 @@ export default {
                 status: 'pending',
                 id_task: this.selectedTask.id
             }
-            console.log(this.selectedSubtask);
             axios.patch(`subtask/${this.selectedTask.subtasks.id}`, data)
-            
+
                 .then((response) => {
-                    console.log(response);
                     this.selectedSubtask.status = 'pending'
-                    console.log('Sucesso');
                 })
                 .catch((error) => {
                     console.error('Erro:', error);
@@ -317,12 +344,7 @@ export default {
             }
             axios.patch(`subtask/${this.selectedSubtask.id}`, data)
                 .then((response) => {
-                    console.log(response.data);
-                    console.log(this.selectedTask.subtasks.status);
                     this.selectedTask.subtasks.status = response.data.task.status
-                    console.log(this.selectedTask.subtasks.status);
-                    console.log('Sucesso');
-                    console.log(this.selectedTask);
                 })
                 .catch((error) => {
                     console.error('Erro:', error);
@@ -332,7 +354,6 @@ export default {
         deleteTask() {
             axios.delete(`task/${this.selectedTask.id}`)
                 .then((response) => {
-                    console.log(this.selectedTask.id)
                     let itemIndex = this.tasks.findIndex(task => task.id === this.selectedTask.id)
                     if (itemIndex) {
                         this.tasks.splice(itemIndex, 1)
@@ -372,7 +393,7 @@ body {
     text-align-last: center;
 }
 
-.leftmenu {
+.left-menu {
     -webkit-text-stroke: .5px;
     height: 100vh;
     margin-left: 80px;
@@ -417,7 +438,7 @@ body {
     margin-left: 40px;
 }
 
-.optionsTask {
+.options-task {
     display: flex;
     align-items: center;
     visibility: hidden;
@@ -425,12 +446,12 @@ body {
     font-size: 1.1rem;
 }
 
-.mainbox {
+.main-box {
     align-content: center;
     margin-bottom: 10px;
 }
 
-.tasks:hover .optionsTask {
+.tasks:hover .options-task {
     visibility: visible;
 }
 
@@ -531,7 +552,7 @@ form {
     margin-right: 20px;
 }
 
-.lefticon {
+.left-icon {
     color: white;
     font-size: 25px;
     margin-left: 10px;
@@ -586,7 +607,6 @@ h4 {
     left: 30px;
     gap: 0px;
     opacity: 0px;
-    /*border: solid 1px red;*/
 }
 
 .modal-right {
@@ -596,7 +616,6 @@ h4 {
     left: 573px;
     gap: 0px;
     opacity: 0px;
-    /* border: solid 1px; */
 }
 
 .modal-right-data {
@@ -627,7 +646,7 @@ h4 {
 
 }
 
-.condicao {
+.condition {
     padding: 5px;
     background-color: lightgreen;
     border-radius: 5px;
@@ -638,4 +657,24 @@ h4 {
     margin-left: 30px;
     font-size: 25px;
 }
+
+@media only screen and (max-width: 768px) {
+    * {
+        width: 80%;
+        flex-direction: column;
+    }
+    form, .navbar-nav {
+        display: none;
+    }
+    .left-box, .left-menu, .content-page {
+       width:50%;
+       max-height: 50px;
+    }
+    .nav .navbar {
+        width: 100vw;
+    }
+    h4 {
+        margin-left:20px;
+    }
+  }
 </style>
